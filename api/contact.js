@@ -1,26 +1,10 @@
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config(); // ✅ MUST BE FIRST
 
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-
-const createTransporter = () => {
-    console.log("Creating transporter:", {
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-    });
-
-    return nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT),
-        secure: true,
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
-    });
-};
+import { createTransporter } from './emailConfig.js';
 
 const transporter = createTransporter();
 
@@ -30,38 +14,38 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/api/contact', async (req, res) => {
-    try {
-        const {
-            fullName,
-            email,
-            company,
-            phone,
-            industry,
-            message,
-            captchaToken
-        } = req.body;
+  try {
+    const {
+      fullName,
+      email,
+      company,
+      phone,
+      industry,
+      message,
+      captchaToken
+    } = req.body;
 
-        if (!captchaToken) {
-            return res.status(400).json({
-                success: false,
-                message: "Captcha is required"
-            });
-        }
+    if (!captchaToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Captcha is required"
+      });
+    }
 
-        const isValidCaptcha = await verifyCaptcha(captchaToken);
+    const isValidCaptcha = await verifyCaptcha(captchaToken);
 
-        if (!isValidCaptcha) {
-            return res.status(400).json({
-                success: false,
-                message: "Captcha verification failed"
-            });
-        }
+    if (!isValidCaptcha) {
+      return res.status(400).json({
+        success: false,
+        message: "Captcha verification failed"
+      });
+    }
 
-        const adminMail = {
-            from: `"Contact Form" <${process.env.SMTP_USER}>`,
-            to: process.env.ADMIN_EMAIL,
-            subject: "New Contact Inquiry",
-            html: `
+    const adminMail = {
+      from: `"Contact Form" <${process.env.SMTP_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject: "New Contact Inquiry",
+      html: `
 <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
   <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     
@@ -109,14 +93,14 @@ app.post('/api/contact', async (req, res) => {
 
   </div>
 </div> `
-        };
+    };
 
 
-        const userMail = {
-            from: `"MIRAi" <${process.env.SMTP_USER}>`,
-            to: email,
-            subject: "We received your inquiry",
-            html: `
+    const userMail = {
+      from: `"MIRAi" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "We received your inquiry",
+      html: `
 <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
   <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     
@@ -148,23 +132,23 @@ app.post('/api/contact', async (req, res) => {
   </div>
 </div>
 `
-        };
+    };
 
-        await transporter.sendMail(adminMail);
-        await transporter.sendMail(userMail);
+    await transporter.sendMail(adminMail);
+    await transporter.sendMail(userMail);
 
-        return res.status(200).json({
-            success: true,
-            message: "Inquiry submitted successfully"
-        });
+    return res.status(200).json({
+      success: true,
+      message: "Inquiry submitted successfully"
+    });
 
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Failed to send inquiry"
-        });
-    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send inquiry"
+    });
+  }
 });
 
 // app.listen(process.env.PORT, () => {
