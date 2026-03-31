@@ -1,12 +1,10 @@
 import dotenv from 'dotenv';
-dotenv.config(); // ✅ MUST BE FIRST
+dotenv.config();
+import nodemailer from "nodemailer";
 
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { createTransporter } from './emailConfig.js';
-
-const transporter = createTransporter();
 
 const app = express();
 
@@ -29,6 +27,8 @@ const createTransporter = () => {
     },
   });
 };
+
+const transporter = createTransporter();
 
 app.post('/api/contact', async (req, res) => {
   try {
@@ -168,8 +168,7 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// app.listen(process.env.PORT, () => {
-//   console.log(`Server is running on port ${process.env.PORT}`);
-// });
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
+});
 
-export default app;
