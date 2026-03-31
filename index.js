@@ -13,6 +13,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const createTransporter = () => {
+  console.log("Creating transporter:", {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+  });
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
+
 app.post('/api/contact', async (req, res) => {
   try {
     const {
