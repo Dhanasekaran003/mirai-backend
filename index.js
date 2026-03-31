@@ -39,24 +39,8 @@ app.post('/api/contact', async (req, res) => {
       phone,
       industry,
       message,
-      captchaToken
     } = req.body;
 
-    if (!captchaToken) {
-      return res.status(400).json({
-        success: false,
-        message: "Captcha is required"
-      });
-    }
-
-    const isValidCaptcha = await verifyCaptcha(captchaToken);
-
-    if (!isValidCaptcha) {
-      return res.status(400).json({
-        success: false,
-        message: "Captcha verification failed"
-      });
-    }
 
     const adminMail = {
       from: `"Contact Form" <${process.env.SMTP_USER}>`,
