@@ -39,6 +39,8 @@ app.post('/api/contact', async (req, res) => {
       phone,
       industry,
       message,
+      orgSize,
+      purpose
     } = req.body;
 
 
@@ -77,6 +79,14 @@ app.post('/api/contact', async (req, res) => {
         <tr>
           <td style="padding: 8px; font-weight: bold;">Industry:</td>
           <td style="padding: 8px;">${industry || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; font-weight: bold;">Organization Size:</td>
+          <td style="padding: 8px;">${orgSize || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; font-weight: bold;">Purpose:</td>
+          <td style="padding: 8px;">${purpose || '-'}</td>
         </tr>
       </table>
 
