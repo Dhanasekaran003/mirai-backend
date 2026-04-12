@@ -232,7 +232,7 @@ app.post('/api/schedule-demo', async (req, res) => {
     const userMail = {
       from: `"MIRAi" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: "Your Demo is Confirmed ✅",
+      subject: "Your Demo is Confirmed",
       html: `
 <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
   <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
