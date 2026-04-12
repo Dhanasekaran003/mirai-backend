@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import nodemailer from "nodemailer";
+import { format, toZonedTime } from "date-fns-tz";
 
 import express from 'express';
 import cors from 'cors';
@@ -158,6 +159,140 @@ app.post('/api/contact', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to send inquiry"
+    });
+  }
+});
+
+app.post('/api/schedule-demo', async (req, res) => {
+  try {
+    const { name, email, date, time, timeZone } = req.body;
+
+    const formattedDate = new Date(date).toDateString();
+    const utcDate = new Date(time);
+
+    const userTime = format(
+      toZonedTime(utcDate, timeZone),
+      "hh:mm a",
+      { timeZone }
+    );
+
+
+    const adminTimeZone = "Asia/Kolkata";
+
+    const adminTime = format(
+      toZonedTime(utcDate, adminTimeZone),
+      "hh:mm a",
+      { timeZone: adminTimeZone }
+    );
+
+    const adminMail = {
+      from: `"Schedule Demo" <${process.env.SMTP_USER}>`,
+      to: process.env.ADMIN_EMAIL,
+      subject: "New Demo Scheduled 🚀",
+      html: `
+<div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    
+    <div style="background: #1a73e8; color: #ffffff; padding: 16px 24px;">
+      <h2 style="margin: 0;">New Demo Scheduled</h2>
+    </div>
+
+    <div style="padding: 20px;">
+      <p style="color: #555;">A new demo has been scheduled:</p>
+
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px; font-weight: bold;">Name:</td>
+          <td style="padding: 8px;">${name}</td>
+        </tr>
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 8px; font-weight: bold;">Email:</td>
+          <td style="padding: 8px;">${email}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; font-weight: bold;">Date:</td>
+          <td style="padding: 8px;">${formattedDate}</td>
+        </tr>
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 8px; font-weight: bold;">Time:</td>
+          <td style="padding: 8px;">(IST):${adminTime}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background: #f4f6f8; padding: 12px; text-align: center; font-size: 12px; color: #888;">
+      © ${new Date().getFullYear()} MiraiWorld
+    </div>
+
+  </div>
+</div>
+`
+};
+
+    const userMail = {
+      from: `"MIRAi" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Your Demo is Confirmed ✅",
+      html: `
+<div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    
+    <div style="background: #1a73e8; color: #ffffff; padding: 16px 24px;">
+      <h2 style="margin: 0;">Demo Confirmed</h2>
+    </div>
+
+    <div style="padding: 20px;">
+      <p>Hi <strong>${name}</strong>,</p>
+
+      <p>Your demo has been successfully scheduled.</p>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <tr>
+          <td style="padding: 8px; font-weight: bold;">Date:</td>
+          <td style="padding: 8px;">${formattedDate}</td>
+        </tr>
+        <tr style="background: #f9f9f9;">
+          <td style="padding: 8px; font-weight: bold;">Time:</td>
+          <td style="padding: 8px;">${userTime}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; font-weight: bold;">Timezone:</td>
+          <td style="padding: 8px;">${timeZone}</td>
+        </tr>
+      </table>
+
+      <p style="margin-top: 20px;">
+        Our team will connect with you at the scheduled time.
+      </p>
+
+      <p style="margin-top: 20px;">
+        Regards,<br/>
+        <strong>MiraiWorld Team</strong>
+      </p>
+    </div>
+
+    <div style="background: #f4f6f8; padding: 12px; text-align: center; font-size: 12px; color: #888;">
+      This is an automated email confirmation.
+    </div>
+
+  </div>
+</div>
+`
+    };
+
+    await transporter.sendMail(adminMail);
+    await transporter.sendMail(userMail);
+
+    return res.status(200).json({
+      success: true,
+      message: "Demo scheduled successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to schedule demo"
     });
   }
 });
