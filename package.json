@@ -11,10 +11,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "cors": "^2.8.6",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "isomorphic-fetch": "^3.0.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.4",
     "nodemon": "^3.1.14"
